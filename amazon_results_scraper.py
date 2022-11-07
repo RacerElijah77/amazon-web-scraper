@@ -10,8 +10,10 @@
 
 
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
 from selectorlib import Extractor
 import os
 from datetime import date
@@ -20,26 +22,27 @@ import requests
 import json
 
 #hey
-os.system("cat banner.txt")
+'''os.system("cat banner.txt")
 today = date.today() #get todays date for the output file
 date = today.strftime("%b-%d-%Y")
 print('\n')
+'''
 
 search_query = input('Enter an item: ')
 
 def search_amazon(item):
-
-    driver = webdriver.Chrome(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()))
     driver.get('https://www.amazon.com')
-    search_box = driver.find_element_by_id('twotabsearchtextbox').send_keys(item)
-    search_button = driver.find_element_by_id("nav-search-submit-text").click()
+
+    search_box = driver.find_element(By.ID, 'twotabsearchtextbox').send_keys(item)
+    search_button = driver.find_element(By.ID, "nav-search-submit-text").click()
 
     driver.implicitly_wait(5)
 
     try:
-        num_page = driver.find_element_by_xpath('//*[@class="a-pagination"]/li[6]')
+        num_page = driver.find_element(By.XPATH,'//*[@class="a-pagination"]/li[6]')
     except NoSuchElementException:
-        num_page = driver.find_element_by_class_name('a-last').click()
+        num_page = driver.find_element(By.CLASS_NAME,'a-last').click()
 
     driver.implicitly_wait(3)
 
@@ -49,7 +52,7 @@ def search_amazon(item):
         page_ = i + 1
         url_list.append(driver.current_url)
         driver.implicitly_wait(4)
-        click_next = driver.find_element_by_class_name('a-last').click()
+        click_next = driver.find_element(By.CLASS_NAME,'a-last').click()
         print("Page " + str(page_) + " grabbed")
 
     driver.quit()

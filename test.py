@@ -1,5 +1,44 @@
 from bs4 import BeautifulSoup
 import requests
+import time
+
+# Function to extract Profile Name
+
+def get_name(soup):
+	nameList = []
+	try:
+		soup.find("div", id_="cm_cr-review_list")
+		soup.find("div", class_="a-section review aok-relative")
+		soup.find("div", class_="a-profile-content")
+		dataString = ""
+		for profile in soup.find_all("span", class_="a-profile-name"):
+			#nameList = nameList + profile.find_all("span", class_="a-profile-name")
+			#nameList.append(dataString)
+			dataString = dataString + profile.get_text()
+			nameList.append(dataString)
+			dataString = ""
+
+	except AttributeError:
+		name = ""	
+
+	return nameList
+
+# Function to extract textual reviews
+def get_review_txt(soup):
+	reviewList= []
+	try:
+		#reviewTxt = soup.find("span", attrs={'class':'a-profile-name'}).string.strip()
+
+		dataString = ""
+		for review in soup.find_all("span", class_="a-size-base review-text review-text-content"):
+			dataString = dataString + review.get_text()
+			reviewList.append(dataString)
+			dataString = ""
+		
+	except AttributeError:
+		review_count = ""	
+
+	return reviewList
 
 # Function to extract Product Title
 def get_title(soup):
@@ -54,7 +93,7 @@ def get_rating(soup):
 # Function to extract Number of User Reviews
 def get_review_count(soup):
 	try:
-		review_count = soup.find("span", attrs={'id':'acrCustomerReviewText'}).string.strip()
+		review_count = soup.find("div", attrs={'class':'a-row a-spacing-base a-size-base'}).string.strip()
 		
 	except AttributeError:
 		review_count = ""	
@@ -80,7 +119,7 @@ if __name__ == '__main__':
 	            'Accept-Language': 'en-US, en;q=0.5'})
 
 	# The webpage URL
-	URL = "https://www.amazon.com/Sony-PlayStation-Pro-1TB-Console-4/dp/B07K14XKZH/"
+	URL = "https://www.amazon.com/product-reviews/B098FKXT8L/ref=cm_cr_arp_d_viewopt_srt?ie=UTF8&filterByStar=all_stars&reviewerType=all_reviews&pageNumber=1&sortBy=recent#reviews-filter-bar"
 
 	# HTTP Request
 	webpage = requests.get(URL, headers=HEADERS)
@@ -89,6 +128,22 @@ if __name__ == '__main__':
 	soup = BeautifulSoup(webpage.content, "lxml")
 
 	# Function calls to display all necessary product information
+	#print("Profile Name of one reviewer = ", get_name(soup))
+
+	namList = get_name(soup)
+	#revList = get_review_txt(soup)
+
+	print(time.time())
+
+
+	for x in range(len(namList)):
+		print(namList[x])
+
+	#for x in range(len(revList)):
+		#print(revList[x])
+
+
+
 	print("Product Title =", get_title(soup))
 	print("Product Price =", get_price(soup))
 	print("Product Rating =", get_rating(soup))

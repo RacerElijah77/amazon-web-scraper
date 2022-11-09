@@ -1,4 +1,10 @@
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+
 import requests
 import time
 
@@ -127,23 +133,32 @@ if __name__ == '__main__':
 	# Soup Object containing all data
 	soup = BeautifulSoup(webpage.content, "lxml")
 
+	driver = webdriver.Chrome(ChromeDriverManager().install())
+	driver.get(URL)
+	time.sleep(5)
 	# Function calls to display all necessary product information
 	#print("Profile Name of one reviewer = ", get_name(soup))
 
 	namList = get_name(soup)
 	#revList = get_review_txt(soup)
 
-	print(time.time())
-
+	# hard coded for now, needs to be in a loop
+	driver.get("https://www.amazon.com/gp/profile/amzn1.account.AHQ5NF72XQK5ETQC44UXDKZVTIYQ/ref=cm_cr_arp_d_gw_btm?ie=UTF8")
+	time.sleep(5)
+	driver.back()
+	time.sleep(5)
 
 	for x in range(len(namList)):
 		print(namList[x])
+		## Here you can call the function for each person
 
 	#for x in range(len(revList)):
 		#print(revList[x])
 
+	
 
 
+	
 	print("Product Title =", get_title(soup))
 	print("Product Price =", get_price(soup))
 	print("Product Rating =", get_rating(soup))

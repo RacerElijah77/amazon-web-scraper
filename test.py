@@ -151,7 +151,7 @@ if __name__ == '__main__':
 	webpage = requests.get(URL, headers=HEADERS)
 
 	# Soup Object containing all data
-	soup = BeautifulSoup(webpage.content, "html.parser")
+	soup = BeautifulSoup(webpage.content, "lxml")
 
 	driver = webdriver.Chrome(ChromeDriverManager().install())
 	
@@ -172,35 +172,35 @@ if __name__ == '__main__':
 		except:
 			pass
 
-
-	for url in profile_urls:
-		print(url)
+	for x in range(3, len(profile_urls)):
+		print(profile_urls[x])
 
 	namList = get_name(soup)
 
 
-	
-	
 	#revList = get_review_txt(soup)
 
 
 	#SCAN ALL PROFILES from the headphone's page
 	t = 0
-	for x in range(1, len(profile_urls)):
+	for x in range(3, len(profile_urls)):
+		
 		driver.get(profile_urls[x])
 		print("Current URL: " + driver.current_url)
 		time.sleep(5)
 		webpage = requests.get(profile_urls[x], headers=HEADERS)
 		print(webpage.status_code)
 		time.sleep(5)
-		soup = BeautifulSoup(webpage.content, "html.parser")
+		soup = BeautifulSoup(webpage.content, "lxml")
 		time.sleep(5)
+
+		##FIX THIS
 		ratingsList = get_ratings_value(soup)
 
 		print(t)
 		t = t +1
-		for x in range(len(ratingsList)):
-			print(ratingsList[x])
+		for y in range(len(ratingsList)):
+			print(ratingsList[y])
 
 		#Now need a function that will get list of reviews from each profile
 

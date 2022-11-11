@@ -151,7 +151,7 @@ if __name__ == '__main__':
 	webpage = requests.get(URL, headers=HEADERS)
 
 	# Soup Object containing all data
-	soup = BeautifulSoup(webpage.content, "lxml")
+	soup = BeautifulSoup(webpage.content, 'lxml')
 
 	driver = webdriver.Chrome(ChromeDriverManager().install())
 	
@@ -184,21 +184,31 @@ if __name__ == '__main__':
 	#SCAN ALL PROFILES from the headphone's page
 	t = 0
 	for x in range(3, len(profile_urls)):
-		
+
 		driver.get(profile_urls[x])
+		time.sleep(5)
+
 		print("Current URL: " + driver.current_url)
-		time.sleep(5)
-		webpage = requests.get(profile_urls[x], headers=HEADERS)
+		
+		#webpage = requests.get(profile_urls[x])
+
+		##NEEDED TO ADD THIS for soup to be updated to new page
+		pg_src = driver.page_source
+
 		print(webpage.status_code)
-		time.sleep(5)
-		soup = BeautifulSoup(webpage.content, "lxml")
+		soup = BeautifulSoup(pg_src, 'lxml')
+
+		temp_title = soup.find("span", class_ ="a-size-extra-large")
+		print("Profile User: " + t + " " temp_title.get_text())
+
+		t = t +1
+
 		time.sleep(5)
 
 		##FIX THIS
 		ratingsList = get_ratings_value(soup)
 
-		print(t)
-		t = t +1
+		
 		for y in range(len(ratingsList)):
 			print(ratingsList[y])
 

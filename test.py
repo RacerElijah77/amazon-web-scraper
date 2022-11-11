@@ -8,8 +8,12 @@ from selenium.webdriver.common.by import By
 import requests
 import time
 
-# Function to extract Profile Name
 
+# Function for getting the links for each profile of a given product
+def get_profiles(soup):
+	return 
+
+# Function to extract a Profile Name
 def get_name(soup):
 	nameList = []
 	try:
@@ -45,6 +49,22 @@ def get_review_txt(soup):
 		review_count = ""	
 
 	return reviewList
+
+def get_ratings_value(soup):
+	starsList= []
+	try:
+		#reviewTxt = soup.find("span", attrs={'class':'a-profile-name'}).string.strip()
+
+		dataString = ""
+		for stars in soup.find_all("span", class_="a-icon-alt"):
+			dataString = dataString + stars.get_text()
+			starsList.append(dataString)
+			dataString = ""
+		
+	except AttributeError:
+		review_count = ""	
+	
+	return starsList
 
 # Function to extract Product Title
 def get_title(soup):
@@ -131,34 +151,66 @@ if __name__ == '__main__':
 	webpage = requests.get(URL, headers=HEADERS)
 
 	# Soup Object containing all data
-	soup = BeautifulSoup(webpage.content, "lxml")
+	soup = BeautifulSoup(webpage.content, "html.parser")
 
 	driver = webdriver.Chrome(ChromeDriverManager().install())
+	
 	driver.get(URL)
 	time.sleep(5)
 	# Function calls to display all necessary product information
 	#print("Profile Name of one reviewer = ", get_name(soup))
 
+
+	profile_urls = []
+
+	for h in soup.findAll("div", class_="a-row a-spacing-mini"):
+		a = h.find('a')
+		try:
+			if 'href' in a.attrs:
+				url = a.get('href')
+				profile_urls.append("https://www.amazon.com" + url)
+		except:
+			pass
+
+
+	for url in profile_urls:
+		print(url)
+
 	namList = get_name(soup)
+
+
+	
+	
 	#revList = get_review_txt(soup)
 
-	# hard coded for now, needs to be in a loop
-	driver.get("https://www.amazon.com/gp/profile/amzn1.account.AHQ5NF72XQK5ETQC44UXDKZVTIYQ/ref=cm_cr_arp_d_gw_btm?ie=UTF8")
-	time.sleep(5)
-	driver.back()
-	time.sleep(5)
 
-	for x in range(len(namList)):
-		print(namList[x])
-		## Here you can call the function for each person
+	#SCAN ALL PROFILES from the headphone's page
+	t = 0
+	for x in range(1, len(profile_urls)):
+		driver.get(profile_urls[x])
+		print("Current URL: " + driver.current_url)
+		time.sleep(5)
+		webpage = requests.get(profile_urls[x], headers=HEADERS)
+		print(webpage.status_code)
+		time.sleep(5)
+		soup = BeautifulSoup(webpage.content, "html.parser")
+		time.sleep(5)
+		ratingsList = get_ratings_value(soup)
+
+		print(t)
+		t = t +1
+		for x in range(len(ratingsList)):
+			print(ratingsList[x])
+
+		#Now need a function that will get list of reviews from each profile
+
+		#driver.back()
+		time.sleep(5)
 
 	#for x in range(len(revList)):
 		#print(revList[x])
 
-	
-
-
-	
+	print("\n")
 	print("Product Title =", get_title(soup))
 	print("Product Price =", get_price(soup))
 	print("Product Rating =", get_rating(soup))

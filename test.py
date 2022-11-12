@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
+import random
 
 import requests
 import time
@@ -53,37 +54,62 @@ def get_review_txt(soup):
 def get_ratings_value(soup):
 	starsList= []
 	try:
-		#reviewTxt = soup.find("span", attrs={'class':'a-profile-name'}).string.strip()
 
 		dataString = ""
-		for stars in soup.find_all("span", class_="a-icon-alt"):
+		for stars in soup.find_all("i", class_="profile-at-review-stars"):
 			dataString = dataString + stars.get_text()
-			starsList.append(dataString)
+
+			getValue = float(dataString[0])
+
+			starsList.append(getValue)
 			dataString = ""
-		
+
 	except AttributeError:
 		review_count = ""	
 	
 	return starsList
+
+
+def get_review_text_each_user(soup):
+	reviewList= []
+	try:
+
+		dataString = ""
+		for revs in soup.find_all("h1", class_="a-size-base a-spacing-none a-color-base profile-at-review-title a-text-bold"):
+			dataString = dataString + revs.get_text()
+			reviewList.append(dataString)
+			dataString = ""
+
+	except AttributeError:
+		review_count = ""	
+	
+	return reviewList
+
+def get_persons_avg(list):
+	avg = 0.0
+	sum = 0.0
+	listSize = len(list)
+
+	for i in range(0, listSize):
+		sum = sum + list[i]
+
+	avg = sum / listSize
+
+	return avg 
+	
 
 # Function to extract Product Title
 def get_title(soup):
 	
 	try:
 		# Outer Tag Object
-		title = soup.find("span", attrs={"id":'productTitle'})
+		title = soup.find("h1", attrs={"class":'a-size-large a-text-ellipsis'})
 
 		# Inner NavigableString Object
 		title_value = title.string
 
 		# Title as a string value
 		title_string = title_value.strip()
-
-		# # Printing types of values for efficient understanding
-		# print(type(title))
-		# print(type(title_value))
-		# print(type(title_string))
-		# print()
 
 	except AttributeError:
 		title_string = ""	
@@ -104,7 +130,7 @@ def get_price(soup):
 # Function to extract Product Rating
 def get_rating(soup):
 
-	try:
+	'''try:
 		rating = soup.find("i", attrs={'class':'a-icon a-icon-star a-star-4-5'}).string.strip()
 		
 	except AttributeError:
@@ -114,7 +140,22 @@ def get_rating(soup):
 		except:
 			rating = ""	
 
-	return rating
+	return rating'''
+
+	try:
+		# Outer Tag Object
+		productRating = soup.find("span", attrs={"class":'a-size-medium a-color-base'})
+
+		# Inner NavigableString Object
+		rating_value = productRating.string
+
+		# Title as a string value
+		title_string = rating_value.strip()
+
+	except AttributeError:
+		title_string = ""	
+
+	return title_string
 
 # Function to extract Number of User Reviews
 def get_review_count(soup):
@@ -145,21 +186,28 @@ if __name__ == '__main__':
 	            'Accept-Language': 'en-US, en;q=0.5'})
 
 	# The webpage URL
-	URL = "https://www.amazon.com/product-reviews/B098FKXT8L/ref=cm_cr_arp_d_viewopt_srt?ie=UTF8&filterByStar=all_stars&reviewerType=all_reviews&pageNumber=1&sortBy=recent#reviews-filter-bar"
+	URL = "https://www.amazon.com/product-reviews/B09DD2TLYN/ref=acr_dp_hist_5?ie=UTF8&filterByStar=five_star&reviewerType=all_reviews#reviews-filter-bar"
 
+	time.sleep(random.randint(3, 7))
 	# HTTP Request
 	webpage = requests.get(URL, headers=HEADERS)
 
-	# Soup Object containing all data
+	# Soup Object containing all data (FIX WHY IT Crashes)
 	soup = BeautifulSoup(webpage.content, 'lxml')
+	print(webpage.status_code)
 
-	driver = webdriver.Chrome(ChromeDriverManager().install())
-	
+	driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()))
 	driver.get(URL)
-	time.sleep(5)
+	
+	time.sleep(random.randint(3, 7))
 	# Function calls to display all necessary product information
 	#print("Profile Name of one reviewer = ", get_name(soup))
 
+	print("\n")
+	print("Product Title = " + get_title(soup))
+	print("Product Rating = " + get_rating(soup)) 
+	print()
+	print()
 
 	profile_urls = []
 
@@ -186,7 +234,7 @@ if __name__ == '__main__':
 	for x in range(3, len(profile_urls)):
 
 		driver.get(profile_urls[x])
-		time.sleep(5)
+		time.sleep(random.randint(3, 7))
 
 		print("Current URL: " + driver.current_url)
 		
@@ -199,32 +247,45 @@ if __name__ == '__main__':
 		soup = BeautifulSoup(pg_src, 'lxml')
 
 		temp_title = soup.find("span", class_ ="a-size-extra-large")
-		print("Profile User: " + t + " " temp_title.get_text())
+		print("Profile User: " + str(t) + " " + temp_title.get_text())
 
 		t = t +1
 
-		time.sleep(5)
+		time.sleep(random.randint(3, 7))
 
-		##FIX THIS
+
 		ratingsList = get_ratings_value(soup)
+		eachRevList = get_review_text_each_user(soup)
 
-		
+
+		print("Reviews and Ratings made from " + temp_title.get_text() + " (out of 5 stars) ")
 		for y in range(len(ratingsList)):
 			print(ratingsList[y])
+			print(eachRevList[y])
 
+		currentAvg = get_persons_avg(ratingsList)
+		print("Reviewer's Average (adjusted average score of the reviewer): ", currentAvg)
+
+		likelyBiased = False
+
+		for y in range(len(eachRevList)):
+			if( (currentAvg < 1.5 or currentAvg > 4.8) and (len(eachRevList[y]) < 10) ):
+				likelyBiased = True
+			else:
+				likelyBiased = False
+
+		if(likelyBiased):
+			print("The following reviewer " + temp_title.get_text() + " is likely biased")
+		else:
+			print("The following reviewer " + temp_title.get_text() + " is likely NOT biased")
+
+		
 		#Now need a function that will get list of reviews from each profile
 
 		#driver.back()
-		time.sleep(5)
+		time.sleep(random.randint(3, 7))
 
 	#for x in range(len(revList)):
 		#print(revList[x])
 
-	print("\n")
-	print("Product Title =", get_title(soup))
-	print("Product Price =", get_price(soup))
-	print("Product Rating =", get_rating(soup))
-	print("Number of Product Reviews =", get_review_count(soup))
-	print("Availability =", get_availability(soup))
-	print()
-	print()
+	

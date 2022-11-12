@@ -188,12 +188,15 @@ if __name__ == '__main__':
 	# The webpage URL
 	URL = "https://www.amazon.com/product-reviews/B09DD2TLYN/ref=acr_dp_hist_5?ie=UTF8&filterByStar=five_star&reviewerType=all_reviews#reviews-filter-bar"
 
-	time.sleep(random.randint(3, 7))
 	# HTTP Request
 	webpage = requests.get(URL, headers=HEADERS)
 
+	time.sleep(random.randint(3, 7))
 	# Soup Object containing all data (FIX WHY IT Crashes)
 	soup = BeautifulSoup(webpage.content, 'lxml')
+
+	time.sleep(random.randint(3, 7))
+	
 	print(webpage.status_code)
 
 	driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()))

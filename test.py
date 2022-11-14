@@ -51,6 +51,7 @@ def get_review_txt(soup):
 
 	return reviewList
 
+#Retrieve the ratings made by each user of multiple products
 def get_ratings_value(soup):
 	starsList= []
 	try:
@@ -69,7 +70,7 @@ def get_ratings_value(soup):
 	
 	return starsList
 
-
+#Function to get the review header text in a user profile
 def get_review_text_each_user(soup):
 	reviewList= []
 	try:
@@ -130,18 +131,6 @@ def get_price(soup):
 # Function to extract Product Rating
 def get_rating(soup):
 
-	'''try:
-		rating = soup.find("i", attrs={'class':'a-icon a-icon-star a-star-4-5'}).string.strip()
-		
-	except AttributeError:
-		
-		try:
-			rating = soup.find("span", attrs={'class':'a-icon-alt'}).string.strip()
-		except:
-			rating = ""	
-
-	return rating'''
-
 	try:
 		# Outer Tag Object
 		productRating = soup.find("span", attrs={"class":'a-size-medium a-color-base'})
@@ -167,53 +156,44 @@ def get_review_count(soup):
 
 	return review_count
 
-# Function to extract Availability Status
-def get_availability(soup):
-	try:
-		available = soup.find("div", attrs={'id':'availability'})
-		available = available.find("span").string.strip()
-
-	except AttributeError:
-		available = ""	
-
-	return available	
-
 if __name__ == '__main__':
 
 	# Headers for request
-	HEADERS = ({'User-Agent':
+	HEADERS = {
+				'User-Agent':
 	            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',
-	            'Accept-Language': 'en-US, en;q=0.5'})
+	            'Accept-Language': 'en-US, en;q=0.5'
+			}
 
-	# The webpage URL
+	# The starting webpage URL
 	URL = "https://www.amazon.com/product-reviews/B09DD2TLYN/ref=acr_dp_hist_5?ie=UTF8&filterByStar=five_star&reviewerType=all_reviews#reviews-filter-bar"
 
 	# HTTP Request
 	webpage = requests.get(URL, headers=HEADERS)
 
-	time.sleep(random.randint(3, 7))
+	time.sleep(random.randint(4, 7))
+	
 	# Soup Object containing all data (FIX WHY IT Crashes)
 	soup = BeautifulSoup(webpage.content, 'lxml')
-
-	time.sleep(random.randint(3, 7))
 	
+	#Print HTTP status code when the website loads
 	print(webpage.status_code)
 
 	driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()))
 	driver.get(URL)
 	
 	time.sleep(random.randint(3, 7))
-	# Function calls to display all necessary product information
-	#print("Profile Name of one reviewer = ", get_name(soup))
+	
 
-	print("\n")
+	# Printing out overall rating and product title of product
+	print("*****BASIC PRODUCT INFORMATION*****")
 	print("Product Title = " + get_title(soup))
 	print("Product Rating = " + get_rating(soup)) 
 	print()
 	print()
 
+	#Loop that will scrap each of the URLS of a user who placed a review of this product (Headphones)
 	profile_urls = []
-
 	for h in soup.findAll("div", class_="a-row a-spacing-mini"):
 		a = h.find('a')
 		try:
@@ -223,16 +203,19 @@ if __name__ == '__main__':
 		except:
 			pass
 
+	print("*****Profile Links to be scrapped and analyzed*****")
 	for x in range(3, len(profile_urls)):
 		print(profile_urls[x])
 
 	namList = get_name(soup)
 
 
-	#revList = get_review_txt(soup)
+	
 
-
-	#SCAN ALL PROFILES from the headphone's page
+	#temporary lists that will be used for summary processing
+	prof_name_list = []
+	adj_ratings_list = []
+	biased_list = []
 	t = 0
 	for x in range(3, len(profile_urls)):
 
@@ -241,7 +224,6 @@ if __name__ == '__main__':
 
 		print("Current URL: " + driver.current_url)
 		
-		#webpage = requests.get(profile_urls[x])
 
 		##NEEDED TO ADD THIS for soup to be updated to new page
 		pg_src = driver.page_source
@@ -249,8 +231,10 @@ if __name__ == '__main__':
 		print(webpage.status_code)
 		soup = BeautifulSoup(pg_src, 'lxml')
 
+		#obtain, store, and print the profile user name
 		temp_title = soup.find("span", class_ ="a-size-extra-large")
-		print("Profile User: " + str(t) + " " + temp_title.get_text())
+		print("User to analyze: " + temp_title.get_text() + " (ID: " + str(t) + ")" )
+		prof_name_list.append(temp_title.get_text())
 
 		t = t +1
 
@@ -265,12 +249,15 @@ if __name__ == '__main__':
 		for y in range(len(ratingsList)):
 			print(ratingsList[y])
 			print(eachRevList[y])
+			print()
 
 		currentAvg = get_persons_avg(ratingsList)
 		print("Reviewer's Average (adjusted average score of the reviewer): ", currentAvg)
+		adj_ratings_list.append(currentAvg)
 
 		likelyBiased = False
 
+		#Code that determines whether or not the reviewier is biased or not
 		for y in range(len(eachRevList)):
 			if( (currentAvg < 1.5 or currentAvg > 4.8) and (len(eachRevList[y]) < 10) ):
 				likelyBiased = True
@@ -278,17 +265,19 @@ if __name__ == '__main__':
 				likelyBiased = False
 
 		if(likelyBiased):
-			print("The following reviewer " + temp_title.get_text() + " is likely biased")
+			print("The following reviewer " + temp_title.get_text() + " is likely biased\n")
 		else:
-			print("The following reviewer " + temp_title.get_text() + " is likely NOT biased")
+			print("The following reviewer " + temp_title.get_text() + " is likely NOT biased\n")
 
-		
-		#Now need a function that will get list of reviews from each profile
+		biased_list.append(likelyBiased)
 
-		#driver.back()
 		time.sleep(random.randint(3, 7))
 
-	#for x in range(len(revList)):
-		#print(revList[x])
+	
+	print("*****SUMMARY*****")
+	print("Profiles scrapping information:\n")
+	for y in range(len(prof_name_list)):
+		print("Username: " + prof_name_list[y] + "\n" + "Adjusted average review score: " + str(adj_ratings_list[y]) + "\n" + "Likely biased? " + str(biased_list[y]) + "\n")
 
+	
 	

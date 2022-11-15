@@ -177,7 +177,7 @@ if __name__ == '__main__':
 	soup = BeautifulSoup(webpage.content, 'lxml')
 	
 	#Print HTTP status code when the website loads
-	print("Status Code: " + webpage.status_code)
+	print("Status Code: ", webpage.status_code)
 
 	driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()))
 	driver.get(URL)
@@ -217,6 +217,8 @@ if __name__ == '__main__':
 	print("*****Profile Links to be scrapped and analyzed*****")
 	for x in range(3, len(profile_urls)):
 		print(profile_urls[x])
+	
+	print()
 
 	namList = get_name(soup)
 
@@ -240,7 +242,7 @@ if __name__ == '__main__':
 		pg_src = driver.page_source
 
 		#Print Status code if request to Amazon has been satisfied
-		print("Status Code: " + webpage.status_code)
+		print("Status Code: ", webpage.status_code)
 		soup = BeautifulSoup(pg_src, 'lxml')
 
 		#obtain, store, and print the profile user name

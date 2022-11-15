@@ -270,7 +270,7 @@ if __name__ == '__main__':
 
 		#Code that determines whether or not the reviewier is biased or not
 		for y in range(len(eachRevList)):
-			if( (currentAvg < 1.5 or currentAvg > 4.8) and (len(eachRevList[y]) < 10) ):
+			if( (currentAvg < 1.2 or currentAvg > 4.8) and (len(eachRevList[y]) < 10) ):
 				likelyBiased = True
 			else:
 				likelyBiased = False

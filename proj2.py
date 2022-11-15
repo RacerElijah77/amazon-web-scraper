@@ -86,6 +86,7 @@ def get_review_text_each_user(soup):
 	
 	return reviewList
 
+#function to get the Adjusted average review score for each user
 def get_persons_avg(list):
 	avg = 0.0
 	sum = 0.0
@@ -117,16 +118,6 @@ def get_title(soup):
 
 	return title_string
 
-# Function to extract Product Price
-def get_price(soup):
-
-	try:
-		price = soup.find("span", attrs={'id':'priceblock_ourprice'}).string.strip()
-
-	except AttributeError:
-		price = ""	
-
-	return price
 
 # Function to extract Product Rating
 def get_rating(soup):
@@ -158,7 +149,7 @@ def get_review_count(soup):
 
 if __name__ == '__main__':
 
-	# Headers for request
+	# Headers for request (MAY NEED TO CHANGE if using a different OS)
 	HEADERS = {
 				'User-Agent':
 	            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',
@@ -177,7 +168,7 @@ if __name__ == '__main__':
 	soup = BeautifulSoup(webpage.content, 'lxml')
 	
 	#Print HTTP status code when the website loads
-	print(webpage.status_code)
+	print("Status Code: " + webpage.status_code)
 
 	driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()))
 	driver.get(URL)
@@ -190,6 +181,17 @@ if __name__ == '__main__':
 	print("Product Title = " + get_title(soup))
 	print("Product Rating = " + get_rating(soup)) 
 	print()
+	print()
+
+
+	print("*****PRODUCT REVIEWS*****")
+	print()
+	prod_review_list = get_review_txt(soup)
+
+	for i in prod_review_list:
+		print(i)
+		print()
+
 	print()
 
 	#Loop that will scrap each of the URLS of a user who placed a review of this product (Headphones)
@@ -228,7 +230,8 @@ if __name__ == '__main__':
 		##NEEDED TO ADD THIS for soup to be updated to new page
 		pg_src = driver.page_source
 
-		print(webpage.status_code)
+		#Print Status code if request to Amazon has been satisfied
+		print("Status Code: " + webpage.status_code)
 		soup = BeautifulSoup(pg_src, 'lxml')
 
 		#obtain, store, and print the profile user name

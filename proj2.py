@@ -1,3 +1,12 @@
+'''
+    CSC 360 - Project 2 (Python)
+    EJ Gasataya
+    Parvathi Krishnan
+    Michael Fecht
+    Computer Networking Fall 2022 - Dr. Li
+    Python Web Scraping Amazon reviews and profiles
+'''
+
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service

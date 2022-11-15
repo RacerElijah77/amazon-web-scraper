@@ -160,7 +160,7 @@ if __name__ == '__main__':
 	            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',
 	            'Accept-Language': 'en-US, en;q=0.5'
 			}
-
+	
 	# The starting webpage URL
 	URL = "https://www.amazon.com/product-reviews/B09DD2TLYN/ref=acr_dp_hist_5?ie=UTF8&filterByStar=five_star&reviewerType=all_reviews#reviews-filter-bar"
 
@@ -183,8 +183,11 @@ if __name__ == '__main__':
 
 	# Printing out overall rating and product title of product
 	print("*****BASIC PRODUCT INFORMATION*****")
-	print("Product Title = " + get_title(soup))
-	print("Product Rating = " + get_rating(soup)) 
+
+	productName = get_title(soup)
+	productRating = get_rating(soup)
+	print("Product Title = " + productName)
+	print("Product Rating = " + productRating) 
 	print()
 	print()
 
@@ -287,6 +290,11 @@ if __name__ == '__main__':
 	
 	print("*****SUMMARY*****")
 	print("Profiles scrapping information:\n")
+
+	print("Product Title = " + productName)
+	print("Product Rating = " + productRating) 
+	print()
+
 	for y in range(len(prof_name_list)):
 		print("Username: " + prof_name_list[y] + "\n" + "Adjusted average review score: " + str(adj_ratings_list[y]) + "\n" + "Likely biased? " + str(biased_list[y]) + "\n")
 

@@ -223,13 +223,14 @@ if __name__ == '__main__':
 	namList = get_name(soup)
 
 
-	
 
 	#temporary lists that will be used for summary processing
 	prof_name_list = []
 	adj_ratings_list = []
 	biased_list = []
 	t = 0
+
+	#process each of the URLS and derive bias conclusion of each user
 	for x in range(3, len(profile_urls)):
 
 		driver.get(profile_urls[x])

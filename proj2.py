@@ -19,10 +19,6 @@ import requests
 import time
 
 
-# Function for getting the links for each profile of a given product
-def get_profiles(soup):
-	return 
-
 # Function to extract a Profile Name
 def get_name(soup):
 	nameList = []
